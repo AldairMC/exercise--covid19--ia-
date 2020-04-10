@@ -76,16 +76,55 @@ def order_type_of_case():
 def num_affected_department():
     return(DEPARTMENTS().unique().size)
 
+#9. Liste los departamentos afectados(sin repetirlos)
+def list_affected_department():
+    return(DEPARTMENTS().unique())
 
+#10. Ordene de mayor a menor por tipo de atención
+def order_type_of_atention():
+    return(DATA.groupby(ATENTION).size().sort_values(ascending=False))
+
+#11. Liste de mayor a menor los 10 departamentos con mas casos de contagiados
+def order_ten_departments_infected():
+    return(DATA.groupby(DEPARTMENT).size().sort_values(ascending=False).head(10))
+
+#12. Liste de mayor a menor los 10 departamentos con mas casos de fallecidos
+def order_ten_departments_dead():
+    deads = DATA[DATA[ATENTION] == "Fallecido"]
+    result = deads.groupby([DEPARTMENT, ATENTION]).size().sort_values(ascending=False).head(10)
+    return(result)
+
+#13. Liste de mayor a menor los 10 departamentos con mas casos de recuperados
+def order_ten_departments_recovered():
+    recovereds = DATA[DATA[ATENTION] == "Recuperado"]
+    result = recovereds.groupby([DEPARTMENT, ATENTION]).size().sort_values(ascending=False).head(10)
+    return(result)
 
 # Function testing
 def result():
     print("1. The total infected is: ", total_infected())
+    print("----------------------------------------------")
     print("2. The numbers of the affected municipalities is: ", num_affected_municipalities())
+    print("----------------------------------------------")
     print("3. The affected municipalities are: ", list_affected_municipalities())
+    print("----------------------------------------------")
     print("4. Those cared for at home are: ", atention_in_home())
+    print("----------------------------------------------")
     print("5. Number of people recovered is: ", num_people_recovered())
+    print("----------------------------------------------")
     print("6. Number of dead people is: ", num_people_killed())
+    print("----------------------------------------------")
     print("7. The types of cases from highest to lowest are: ", order_type_of_case())
+    print("----------------------------------------------")
     print("8. The numbers of the affected departments is: ", num_affected_department())
+    print("----------------------------------------------")
+    print("9. The affected depertments are: ", list_affected_department())
+    print("----------------------------------------------")
+    print("10. The types of care from highest to lowest are: ", order_type_of_atention())
+    print("----------------------------------------------")
+    print("11. The 10 most infected departments are: ", order_ten_departments_infected())
+    print("----------------------------------------------")
+    print("12. The 10 departments with the most deaths are: ", order_ten_departments_dead())
+    print("----------------------------------------------")
+    print("13. The 10 departments with the most recovered are: ", order_ten_departments_recovered())
 result()
