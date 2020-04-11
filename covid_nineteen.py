@@ -25,7 +25,7 @@ ATENTION = 'Atención**'
 AGE = 'Edad'
 GENDER = 'Sexo'
 TYPE = 'Tipo*'
-CONTRY = 'País de procedencia'
+COUNTRY = 'País de procedencia'
 URL = 'casos.csv'
 DATA = pd.read_csv(URL)
 
@@ -47,13 +47,17 @@ def TO_UPPER_DEPARTMENT():
     new_department = [i.upper() for i in DATA[DEPARTMENT]]
     DATA[DEPARTMENT] = new_department
 
+def TO_UPPER_COUNTRY():
+    new_country = [i.upper() for i in DATA[COUNTRY]]
+    DATA[COUNTRY] = new_country
+
 def FILTER(key, keyword):
     return(DATA[DATA[key] == keyword][key])
 
 
 # 1. Número de casos de Contagiados en el País.
 def total_infected():
-    return(DATA[ID].size)
+    return(DATA[ID].max())
 
 # 2. Número de Municipios Afectados
 def num_affected_municipalities():
@@ -155,7 +159,33 @@ def men_and_women_for_department():
 #
 # average_age_men_and_women()
 
+# 20. Liste de mayor a menor el número de contagiados por país de procedencia
+def order_infected_country_of_origin():
+    TO_UPPER_COUNTRY()
+    result = DATA.groupby(COUNTRY).size().sort_values(ascending=False)
+    return(result)
 
+# 21. Liste de mayor a menor las fechas donde se presentaron mas contagios
+def order_infected_date():
+    result = DATA.groupby(DATE_DIAGNOSTIC).size().sort_values(ascending=False)
+    return(result)
+
+# 22. Diga cual es la tasa de mortalidad y recuperación que tiene toda Colombmia
+def recovery_and_mortality_colombia():
+    colombia = len(DATA)
+    recovery = (FILTER(ATENTION, "Recuperado").size / colombia) * 100
+    mortality = (FILTER(ATENTION, "Fallecido").size / colombia) * 100
+    result = pd.Series({'recovery': recovery, 'mortality': mortality})
+    return(result)
+
+# 23. Liste la tasa de mortalidad y recuperación que tiene cada departamento
+def recovery_and_mortality_colombia_department():
+    TO_UPPER_DEPARTMENT()
+    atentions = ["Fallecido", "Recuperado"]
+    data_department = DATA[ATENTION].unique()
+    department = DATA[DATA[ATENTION].isin(data_department)].groupby(DEPARTMENT).size()
+    result = (DATA[DATA[ATENTION].isin(atentions)].groupby([DEPARTMENT, ATENTION]).size() / department)*100
+    return(result)
 
 # Function testing
 def result():
@@ -195,6 +225,14 @@ def result():
     print("----------------------------------------------")
     print("18. Number of women and men per city are: ", men_and_women_for_department())
     print("----------------------------------------------")
+    print("----------------------------------------------")
+    print("20. The most infected countries of origin are: ", order_infected_country_of_origin())
+    print("----------------------------------------------")
+    print("21. The number of infected by dates is: ", order_infected_date())
+    print("----------------------------------------------")
+    print("22. The Colombia mortality and recovery is: ", recovery_and_mortality_colombia())
+    print("----------------------------------------------")
+    print("23. The mortality and recovery for department is: ", recovery_and_mortality_colombia_department())
     print("----------------------------------------------")
     print("----------------------------------------------")
 # result()
