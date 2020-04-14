@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
-# import matplotlib.pyplot as plt
-
+import matplotlib.pyplot as plt
+import terminalplot as tp
 
 # Variables globales
 ID = 'ID de caso'
@@ -49,6 +49,9 @@ def TO_UPPER_COUNTRY():
 def FILTER(key, keyword):
     return(DATA[DATA[key] == keyword][key])
 
+
+def show():
+   return plt.show(block=True)
 
 # 1. Número de casos de Contagiados en el País.
 def total_infected():
@@ -162,18 +165,6 @@ def men_and_women_for_department():
     return(result.sort_values(ascending=False))
 
 
-# def average_age_men_and_women():
-#     TO_UPPER_CITY()
-#     aux = DATA[DATA[DEPARTMENT] == "Bogotá D.C."]
-#     men = aux.groupby([DEPARTMENT, CITY, GENDER, AGE])
-#     result = men[AGE].sum().head(20)
-#     # aux = pd.DataFrame(men)
-#     # print(tabulate(aux, tablefmt='psql'))
-#     print(men.size())
-#
-# average_age_men_and_women()
-
-
 # 20. Liste de mayor a menor el número de contagiados por país de procedencia
 def order_infected_country_of_origin():
     TO_UPPER_COUNTRY()
@@ -218,80 +209,44 @@ def recovery_and_mortality_colombia_municipalities():
     return(result)
 
 
-# Function testing
-def result():
-    print("1. The total infected is: ")
-    print(total_infected())
-    print("----------------------------------------------")
-    print("2. The numbers of the affected municipalities is: ")
-    print(num_affected_municipalities())
-    print("----------------------------------------------")
-    print("3. The affected municipalities are: ")
-    print(list_affected_municipalities())
-    print("----------------------------------------------")
-    print("4. Those cared for at home are: ")
-    print(atention_in_home())
-    print("----------------------------------------------")
-    print("5. Number of people recovered is: ")
-    print(num_people_recovered())
-    print("----------------------------------------------")
-    print("6. Number of dead people is: ")
-    print(num_people_killed())
-    print("----------------------------------------------")
-    print("7. The types of cases from highest to lowest are: ")
-    print(order_type_of_case())
-    print("----------------------------------------------")
-    print("8. The numbers of the affected departments is: ")
-    print(num_affected_department())
-    print("----------------------------------------------")
-    print("9. The affected depertments are: ")
-    print(list_affected_department())
-    print("----------------------------------------------")
-    print("10. The types of care from highest to lowest are: ")
-    print(order_type_of_atention())
-    print("----------------------------------------------")
-    print("11. The 10 most infected departments are: ")
-    print(order_ten_departments_infected())
-    print("----------------------------------------------")
-    print("12. The 10 departments with the most deaths are: ")
-    print(order_ten_departments_dead())
-    print("----------------------------------------------")
-    print("13. The 10 departments with the most recovered are: ")
-    print(order_ten_departments_recovered())
-    print("----------------------------------------------")
-    print("14. The 10 most infected municipalities are: ")
-    print(order_ten_municipalities_infected())
-    print("----------------------------------------------")
-    print("15. The 10 municipalities with the most deaths are: ")
-    print(order_ten_municipalities_dead())
-    print("----------------------------------------------")
-    print("16. The 10 municipalities with the most recovered are: ")
-    print(order_ten_municipalities_recovered())
-    print("----------------------------------------------")
-    print("17. The most infected cities by departments are: ")
-    print(order_city_for_department())
-    print("----------------------------------------------")
-    print("18. Number of women and men per city are: ",)
-    print(men_and_women_for_department())
-    print("----------------------------------------------")
-    print("----------------------------------------------")
-    print("20. The most infected countries of origin are: ")
-    print(order_infected_country_of_origin())
-    print("----------------------------------------------")
-    print("21. The number of infected by dates is: ")
-    print(order_infected_date())
-    print("----------------------------------------------")
-    print("22. The Colombia mortality and recovery is: ")
-    print(recovery_and_mortality_colombia())
-    print("----------------------------------------------")
-    print("23. The mortality and recovery for department is: ")
-    print(recovery_and_mortality_colombia_department())
-    print("----------------------------------------------")
-    print("24. The mortality and recovery for city is: ")
-    print(recovery_and_mortality_colombia_municipalities())
-    print("----------------------------------------------")
-    print("25. ")
-    print("----------------------------------------------")
+# 25. Liste por cada ciudad la cantidad de personas por atención
+def list_atention_for_municipalities():
+    TO_UPPER_CITY()
+    result = DATA.groupby([CITY, ATENTION]).size().sort_values(ascending=False)
+    return(result)
 
 
-result()
+# 27. Grafique las curvas de contagio, muerte y recuperación de toda
+# Colombia acumulados
+def grafic_dead_recovery_infected_colombia():
+    aux = DATA.groupby(DATE_DIAGNOSTIC).size().cumsum()
+    deads = DATA[DATA[ATENTION] == "Fallecido"]
+    recovereds = DATA[DATA[ATENTION] == "Recuperado"]
+    group_dead = deads.groupby(DATE_DIAGNOSTIC).size().cumsum().sort_values(ascending=True)
+    group_recovered = recovereds.groupby(DATE_DIAGNOSTIC).size().cumsum().sort_values()
+    plt.subplot(1, 3, 1)
+    plt.title("Infected")
+    print(plt.plot(aux))
+    plt.xticks(rotation=270)
+    plt.subplot(1, 3, 2)
+    plt.title("Deads")
+    print(plt.plot(group_dead))
+    plt.xticks(rotation=270)
+    plt.subplot(1, 3, 3)
+    plt.title("Recovered")
+    print(plt.plot(group_recovered))
+    plt.xticks(rotation=270)
+    show()
+
+
+# 33. Haga un gráfico de barras por Sexo de toda Colombia
+def grafic_men_and_women_colombia():
+    men = DATA[DATA[GENDER] == 'M'].groupby(GENDER).size()
+    women = DATA[DATA[GENDER] == 'F'].groupby(GENDER).size()
+    plt.subplot(1, 2, 1)
+    plt.title("Men")
+    print(plt.hist(men))
+    plt.subplot(1, 2, 2)
+    plt.title("Women")
+    print(plt.hist(women))
+    show()
